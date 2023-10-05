@@ -2,56 +2,70 @@
 #include "db.h"
 
 int main() {
-    std::unordered_map<std::string, Table*> tables;
-
     std::string input;
     while (true) {
         db_prompt();
         std::getline(std::cin, input);
         std::stringstream ss(input);
 
-        // Meta commands
+        // Handle meta commands
         if (input[0] == '.') {
             handle_meta_command(input);
             continue;
         }
 
         // Handle SQL Statements
-        std::string op;
-        ss >> op;
-        if (op == "create") {
-            std::string table_name;
-            ss >> table_name;
+        std::string op; ss >> op;
+        execute_sql(str_to_operator.at(op), ss);
+    }
 
-            std::vector<std::pair<std::string, FieldType>> schema;
+    return 0;
+}
+
+void execute_sql(Operator op, std::stringstream& ss) {
+    switch (op) {
+        case CREATE:
+        {
+            std::string table_name; ss >> table_name;
+
+            std::vector<FieldDefinition> field_defs;
             std::string field;
             while (ss >> field) {
                 int split = field.find(':');
-
                 std::string field_name = field.substr(0, split);
                 std::string field_type = field.substr(split + 1);
 
-                schema.push_back(std::make_pair(field_name, string_to_field.at(field_type)));
+                field_defs.push_back(FieldDefinition(field_name, string_to_field_type.at(field_type)));
             }
 
-            Table *table = new Table(table_name, schema);
+            Table *table = new Table(table_name, Schema(field_defs));
             tables[table_name] = table;
-        } else if (op == "schema") {
+            break;
+        }
+        case SCHEMA:
+        {
             std::string table_name;
             ss >> table_name;
 
             tables[table_name]->print_schema();
-        } else if (op == "select") {
-
-        } else if (op == "insert") {
-            std::string table_name;
-            ss >> table_name;
-        } else {
-            std::cout << "Unrecognized operation: " << op << "\n";
+            break;
         }
+        case INSERT:
+        {
+            std::string table_name; ss >> table_name;
+            
+            std::vector<std::string> vals;
+            std::string value;
+            while (ss >> value) {
+                continue;
+            }
+            break;
+        }
+        case SELECT:
+            break;
+        default:
+            std::cout << "Invalid SQL statement.\n";
     }
-
-    return 0;
 }
 
 void handle_meta_command(std::string input) {

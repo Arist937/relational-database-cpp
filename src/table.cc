@@ -1,14 +1,22 @@
 #include "table.h"
 
-Table::Table(std::string n, std::vector<std::pair<std::string, FieldType> > s) {
-    Table::name = n;
-    Table::schema = s;
+std::ostream& operator<<(std::ostream& os, const FieldDefinition& fd) {
+    os << fd.name << ':' << field_type_to_string.at(fd.type);
+    return os;
+}
+
+void Schema::print() {
+    for (const auto &def : Schema::field_defs) {
+        std::cout << def << " ";
+    }
+
+    std::cout << "\n";
 }
 
 void Table::print_schema() {
-    for (const auto& field : Table::schema) {
-        std::cout << field.first << ":" << field_to_string.at(field.second) << " ";
-    }
-    
-    std::cout << std::endl;
+    Table::schema.print();
+}
+
+void Table::insert_row() {
+
 }
