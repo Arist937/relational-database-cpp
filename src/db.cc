@@ -44,25 +44,44 @@ void execute_sql(Operator op, std::stringstream& ss) {
         }
         case SCHEMA:
         {
-            std::string table_name;
-            ss >> table_name;
-
+            std::string table_name; ss >> table_name;
             tables[table_name]->print_schema();
             break;
         }
         case INSERT:
         {
             std::string table_name; ss >> table_name;
-            
-            std::vector<std::string> vals;
-            std::string value;
-            while (ss >> value) {
-                continue;
+
+            std::vector<Field> fields;
+            std::string field;
+            while (ss >> field) {
+                int split = field.find(':');
+                std::string val = field.substr(0, split);
+                FieldType type = string_to_field_type.at(field.substr(split + 1));
+
+                switch (type) {
+                    case INTEGER:
+                    {
+                        int field_val = std::stoi(val);
+                        fields.push_back(Field(field_val, type));
+                        break;
+                    }
+                    default:
+                        fields.push_back(Field(val, type));
+                }
             }
+
+            Row row = Row(fields);
+            tables[table_name]->insert_row(row);
             break;
         }
         case SELECT:
+        {
+            std::string table_name; ss >> table_name;
+            tables[table_name]->select_all();
+
             break;
+        }
         default:
             std::cout << "Invalid SQL statement.\n";
     }

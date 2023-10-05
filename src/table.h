@@ -27,7 +27,9 @@ class FieldDefinition {
 
     public:
         FieldDefinition(std::string n, FieldType t) : name{n}, type{t} {}
+        
         friend std::ostream& operator<<(std::ostream& os, const FieldDefinition& fd);
+        friend class Table;
 };
 
 class Field {
@@ -36,21 +38,33 @@ class Field {
 
     public:
         Field(FieldValue v, FieldType t) : val{v}, type{t} {}
+
+        friend std::ostream& operator<<(std::ostream& os, const Field& f);
+        friend class Table;
 };
 
 class Row {
     const std::vector<Field> fields;
 
     public:
-        Row(std::vector<Field> f) : fields{f} {}
+        const size_t size;
+
+        Row(std::vector<Field> f) : fields{f}, size{f.size()} {}
+        
+        friend std::ostream& operator<<(std::ostream& os, const Row& r);
+        friend class Table;
 };
 
 class Schema {
     const std::vector<FieldDefinition> field_defs;
 
     public:
-        Schema(std::vector<FieldDefinition> f) : field_defs{f} {}
+        const size_t size;
+
+        Schema(std::vector<FieldDefinition> f) : field_defs{f}, size{f.size()} {}
         void print();
+
+        friend class Table;
 };
 
 class Table {
@@ -58,9 +72,12 @@ class Table {
     Schema schema;
     std::vector<Row> data;
 
+    bool validate_row(Row &r);
+
     public:
         Table(std::string n, Schema s) : name{n}, schema{s} {}
 
-        void insert_row();
+        void insert_row(Row &r);
+        void select_all();
         void print_schema();
 };
