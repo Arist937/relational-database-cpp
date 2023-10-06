@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <fstream>
 
 typedef enum {
     INTEGER,
@@ -26,6 +27,9 @@ class FieldDefinition {
     const FieldType type;
 
     public:
+        void serialize(const std::string& filePath);
+        static FieldDefinition deserialize(const std::string& filePath);
+
         FieldDefinition(std::string n, FieldType t) : name{n}, type{t} {}
         
         friend std::ostream& operator<<(std::ostream& os, const FieldDefinition& fd);
@@ -35,6 +39,8 @@ class FieldDefinition {
 class Field {
     const FieldValue val;
     const FieldType type;
+    void serialize(std::ofstream& file);
+    void deserialize(std::ifstream& file);
 
     public:
         Field(FieldValue v, FieldType t) : val{v}, type{t} {}
@@ -45,6 +51,8 @@ class Field {
 
 class Row {
     const std::vector<Field> fields;
+    void serialize(std::ofstream& file);
+    void deserialize(std::ifstream& file);
 
     public:
         const size_t size;
@@ -57,6 +65,8 @@ class Row {
 
 class Schema {
     const std::vector<FieldDefinition> field_defs;
+    void serialize(std::ofstream& file);
+    void deserialize(std::ifstream& file);
 
     public:
         const size_t size;
@@ -80,4 +90,7 @@ class Table {
         void insert_row(Row &r);
         void select_all();
         void print_schema();
+
+        void serialize(const std::string& filePath);
+        void deserialize(const std::string& filePath);
 };

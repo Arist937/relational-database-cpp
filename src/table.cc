@@ -1,28 +1,4 @@
-#include "table.h"
-
-std::ostream& operator<<(std::ostream& os, const FieldDefinition& fd) {
-    os << fd.name << ':' << field_type_to_string.at(fd.type);
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Field& f) {
-    switch (f.type) {
-        case INTEGER:
-            os << std::get<int>(f.val) << ':' << field_type_to_string.at(f.type);
-            break;
-        case STRING:
-            os << std::get<std::string>(f.val) << ':' << field_type_to_string.at(f.type);
-            break;
-    }
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Row& r) {
-    for (const auto &field : r.fields) {
-        os << field << " ";
-    }
-    return os;
-}
+#include "include/table.h"
 
 void Schema::print() {
     for (const auto &def : Schema::field_defs) {

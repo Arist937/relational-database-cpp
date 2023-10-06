@@ -1,5 +1,5 @@
-#include "table.h"
-#include "db.h"
+#include "include/table.h"
+#include "include/db.h"
 
 int main() {
     std::string input;
@@ -79,6 +79,27 @@ void execute_sql(Operator op, std::stringstream& ss) {
         {
             std::string table_name; ss >> table_name;
             tables[table_name]->select_all();
+
+            break;
+        }
+        case SERIALIZE:
+        {
+            std::string name; ss >> name;
+            std::string type; ss >> type;
+
+            FieldDefinition test(name, string_to_field_type.at(type));
+
+            test.serialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test");
+
+            break;
+        }
+        case DESERIALIZE:
+        {
+            std::string name; ss >> name;
+            std::string type; ss >> type;
+
+            FieldDefinition test = FieldDefinition::deserialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test");
+            std::cout << test << "\n";
 
             break;
         }
