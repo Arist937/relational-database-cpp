@@ -38,7 +38,8 @@ void execute_sql(Operator op, std::stringstream& ss) {
                 field_defs.push_back(FieldDefinition(field_name, string_to_field_type.at(field_type)));
             }
 
-            Table *table = new Table(table_name, Schema(field_defs));
+            std::vector<Row> table_data;
+            Table *table = new Table(table_name, Schema(field_defs), table_data);
             tables[table_name] = table;
             break;
         }
@@ -63,11 +64,11 @@ void execute_sql(Operator op, std::stringstream& ss) {
                     case INTEGER:
                     {
                         int field_val = std::stoi(val);
-                        fields.push_back(Field(field_val, type));
+                        fields.push_back(Field(type, field_val));
                         break;
                     }
                     default:
-                        fields.push_back(Field(val, type));
+                        fields.push_back(Field(type, val));
                 }
             }
 
@@ -84,22 +85,16 @@ void execute_sql(Operator op, std::stringstream& ss) {
         }
         case SERIALIZE:
         {
-            std::string name; ss >> name;
-            std::string type; ss >> type;
-
-            FieldDefinition test(name, string_to_field_type.at(type));
-
-            test.serialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test");
+            std::string table_name; ss >> table_name;
+            tables[table_name]->serialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test.txt");
 
             break;
         }
         case DESERIALIZE:
         {
-            std::string name; ss >> name;
-            std::string type; ss >> type;
-
-            FieldDefinition test = FieldDefinition::deserialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test");
-            std::cout << test << "\n";
+            std::string table_name; ss >> table_name;
+            Table test = Table::deserialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test.txt");
+            test.print_schema();
 
             break;
         }

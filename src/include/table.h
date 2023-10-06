@@ -27,8 +27,8 @@ class FieldDefinition {
     const FieldType type;
 
     public:
-        void serialize(const std::string& filePath);
-        static FieldDefinition deserialize(const std::string& filePath);
+        void serialize(std::ofstream &file) const;
+        static FieldDefinition deserialize(std::ifstream &file);
 
         FieldDefinition(std::string n, FieldType t) : name{n}, type{t} {}
         
@@ -37,13 +37,13 @@ class FieldDefinition {
 };
 
 class Field {
-    const FieldValue val;
     const FieldType type;
-    void serialize(std::ofstream& file);
-    void deserialize(std::ifstream& file);
+    const FieldValue val;
 
     public:
-        Field(FieldValue v, FieldType t) : val{v}, type{t} {}
+        void serialize(std::ofstream& file) const;
+        static Field deserialize(std::ifstream& file);
+        Field(FieldType t, FieldValue v) : type{t}, val{v} {}
 
         friend std::ostream& operator<<(std::ostream& os, const Field& f);
         friend class Table;
@@ -51,12 +51,11 @@ class Field {
 
 class Row {
     const std::vector<Field> fields;
-    void serialize(std::ofstream& file);
-    void deserialize(std::ifstream& file);
 
     public:
         const size_t size;
-
+        void serialize(std::ofstream& file) const;
+        static Row deserialize(std::ifstream& file);
         Row(std::vector<Field> f) : fields{f}, size{f.size()} {}
         
         friend std::ostream& operator<<(std::ostream& os, const Row& r);
@@ -65,12 +64,12 @@ class Row {
 
 class Schema {
     const std::vector<FieldDefinition> field_defs;
-    void serialize(std::ofstream& file);
-    void deserialize(std::ifstream& file);
 
     public:
-        const size_t size;
+        void serialize(std::ofstream &file) const;
+        static Schema deserialize(std::ifstream &file);
 
+        const size_t size;
         Schema(std::vector<FieldDefinition> f) : field_defs{f}, size{f.size()} {}
         void print();
 
@@ -79,18 +78,18 @@ class Schema {
 
 class Table {
     std::string name;
-    Schema schema;
     std::vector<Row> data;
 
     bool validate_row(Row &r);
 
     public:
-        Table(std::string n, Schema s) : name{n}, schema{s} {}
+        Schema schema;
+        Table(std::string n, Schema s, std::vector<Row> d) : name{n}, schema{s}, data{d} {}
 
         void insert_row(Row &r);
         void select_all();
         void print_schema();
 
-        void serialize(const std::string& filePath);
-        void deserialize(const std::string& filePath);
+        void serialize(const std::string& filePath) const;
+        static Table deserialize(const std::string& filePath);
 };
