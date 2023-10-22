@@ -8,8 +8,7 @@ typedef enum {
     SCHEMA,
     INSERT,
     SELECT,
-    SERIALIZE,
-    DESERIALIZE,
+    LOAD,
 } Operator;
 
 const std::unordered_map<std::string, Operator> str_to_operator = {
@@ -17,8 +16,7 @@ const std::unordered_map<std::string, Operator> str_to_operator = {
     {"schema", SCHEMA},
     {"insert", INSERT},
     {"select", SELECT},
-    {"serialize", SERIALIZE},
-    {"deserialize", DESERIALIZE},
+    {"load", LOAD},
 };
 
 std::unordered_map<std::string, Table*> tables;

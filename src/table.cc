@@ -28,6 +28,9 @@ void Table::print_schema() {
 
 void Table::insert_row(Row &r) {
     if (validate_row(r)) {
+        std::string file_path = "databases/" + Table::name;
+        r.serialize(file_path);
+
         Table::data.push_back(r);
     }
 }
