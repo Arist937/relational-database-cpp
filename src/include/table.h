@@ -54,7 +54,7 @@ class Row {
 
     public:
         const size_t size;
-        void serialize(std::ofstream& file) const;
+        void serialize(const std::string& file_path) const;
         static Row deserialize(std::ifstream& file);
         Row(std::vector<Field> f) : fields{f}, size{f.size()} {}
         
@@ -91,5 +91,5 @@ class Table {
         void print_schema();
 
         void serialize(const std::string& filePath) const;
-        static Table deserialize(const std::string& filePath);
+        static Table* deserialize(const std::string& filePath);
 };

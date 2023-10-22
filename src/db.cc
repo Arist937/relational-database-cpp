@@ -2,6 +2,24 @@
 #include "include/db.h"
 
 int main() {
+    // std::ifstream file("databases/empty.txt", std::ios::out);
+
+    // size_t size;
+    // file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+
+    // std::vector<Field> fields;
+    // for (unsigned int i = 0; i < size; ++i) {
+    //     fields.push_back(Field::deserialize(file));
+    // }
+
+    // for (const auto &f : fields) {
+    //     std::cout << f;
+    // }
+
+    // std::cout << "\n";
+
+    // return 0;
+
     std::string input;
     while (true) {
         db_prompt();
@@ -40,6 +58,9 @@ void execute_sql(Operator op, std::stringstream& ss) {
 
             std::vector<Row> table_data;
             Table *table = new Table(table_name, Schema(field_defs), table_data);
+
+            std::string file_path = "databases/" + table_name;
+            table->serialize(file_path);
             tables[table_name] = table;
             break;
         }
@@ -83,19 +104,13 @@ void execute_sql(Operator op, std::stringstream& ss) {
 
             break;
         }
-        case SERIALIZE:
+        case LOAD:
         {
             std::string table_name; ss >> table_name;
-            tables[table_name]->serialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test.txt");
+            std::string file_path = "databases/" + table_name;
+            Table* test = Table::deserialize(file_path);
 
-            break;
-        }
-        case DESERIALIZE:
-        {
-            std::string table_name; ss >> table_name;
-            Table test = Table::deserialize("/Users/arist/Documents/code/projects/relational-database-cpp/databases/test.txt");
-            test.print_schema();
-
+            tables[table_name] = test;
             break;
         }
         default:

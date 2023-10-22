@@ -106,7 +106,10 @@ Field Field::deserialize(std::ifstream &file) {
     }
 }
 
-void Row::serialize(std::ofstream& file) const {
+void Row::serialize(const std::string& file_path) const {
+    // We serialize row to an existing database
+    std::ofstream file(file_path, std::ios::out | std::ios::app);
+
     // Serialize the size
     file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
 
@@ -114,11 +117,15 @@ void Row::serialize(std::ofstream& file) const {
     for (const auto &f : fields) {
         f.serialize(file);
     }
+
+    file.close();
 }
 
 Row Row::deserialize(std::ifstream& file) {
     size_t size;
     file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+
+    std::cout << size << "\n";
 
     std::vector<Field> fields;
     for (unsigned int i = 0; i < size; ++i) {
@@ -163,17 +170,19 @@ void Table::serialize(const std::string& file_path) const {
     // Serialize the schema
     schema.serialize(file);
 
-    // Serialize size of row vector
-    size_t data_length = data.size();
-    file.write(reinterpret_cast<char*>(&data_length), sizeof(size_t));
+    // // Serialize size of row vector
+    // size_t data_length = data.size();
+    // file.write(reinterpret_cast<char*>(&data_length), sizeof(size_t));
 
-    // Serialize all rows
-    for (const auto &r : data) {
-        r.serialize(file);
-    }
+    // // Serialize all rows
+    // for (const auto &r : data) {
+    //     r.serialize(file);
+    // }
+
+    file.close();
 }
 
-Table Table::deserialize(const std::string& file_path) {
+Table* Table::deserialize(const std::string& file_path) {
     std::ifstream file(file_path, std::ios::out);
 
     // Deserialize length of name
@@ -188,15 +197,18 @@ Table Table::deserialize(const std::string& file_path) {
     // Deserialize the schema
     Schema schema = Schema::deserialize(file);
 
-    // Deserialize the size of row vector
-    size_t num_rows;
-    file.read(reinterpret_cast<char*>(&num_rows), sizeof(size_t));
-
-    // Deserialize all the rows
+    // Deserialize rows until no more
     std::vector<Row> data;
-    for (unsigned int i = 0; i < num_rows; ++i) {
-        data.push_back(Row::deserialize(file));
+    while (!file.eof()) {
+        Row r = Row::deserialize(file);
+
+        if (r.size <= 0) {
+            break;
+        }
+
+        data.push_back(r);
     }
 
-    return Table(name, schema, data);
+    Table* t = new Table(name, schema, data);
+    return t;
 }
